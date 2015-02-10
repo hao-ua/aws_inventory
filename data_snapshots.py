@@ -7,7 +7,7 @@ class data:
         self.Name = 'Snapshots'
         self.Priority = 10
         self.show = True
-        self.HeaderNames = ['ID', 'Status', 'Size', 'Volume ID', 'Volume exists', 'Owner ID', 'Image Id']
+        self.HeaderNames = ['ID', 'Status', 'Size', 'Volume ID', 'Volume exists', 'Owner ID', 'Image ID']
         self.HeaderWidths = ['2', '2', '1', '2', '1', '4', '4']
         self.HeaderKeys = ['name', 'status', 'size', 'volume_id', 'volume_exists', 'owner_id', 'image_id']
         self.credentials = credentials
