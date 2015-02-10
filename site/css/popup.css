@@ -1,0 +1,103 @@
+div.show-grid {
+    border: 1px solid #1a1a1a;
+    padding: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+div.popup {
+  display: none;
+  padding: 1.5em;
+  padding-right: 0px;
+  padding-left:0px;
+  margin-top:2.5em;
+  overflow: hidden;
+  background: #CACACA;
+  color: #000000;
+  border: 1px solid #1a1a1a;
+  font-size: 90%;
+}
+div.row-fluid [class*="span"] {
+    min-height: 0px
+}
+div.container{
+    width: 1150px;
+}
+
+div.row:nth-child(even) {
+    background: #EEE;
+}
+div.row:nth-child(odd) {
+    background: #FFF;
+}
+div.row {
+    border-radius: 0.5em;
+}
+.header {
+    font-weight:bold;
+}
+div.popup > p:nth-child(odd), div.popup > div > p:nth-child(odd) {
+    float:left;
+    border-bottom: 1px solid #FFF;
+    width: 50%;
+    margin: 0px;
+}
+div.popup > p:nth-child(even) , div.popup > div > p:nth-child(even) {
+    float:right;
+    border-bottom: 1px solid #FFF;
+    width: 50%;
+    margin: 0px;
+}
+.key {
+    font-weight:bold;
+    float:left;
+    padding-left: 2em;
+}
+.val {
+    float:right;
+    padding-right: 2em;
+}
+div.tab {
+    padding-bottom:3em;
+}
+div.options {
+    padding-left: 2em;
+    padding-bottom: 1em;
+}
+
+div.options > div:not(.row) {
+    font-weight:bold;
+}
+
+table, tr, td {
+    border: 1px solid;
+    padding-left:5px;
+    padding-right:5px;
+}
+
+tr:nth-child(even) {
+    background: #EEE;
+}
+
+tr:nth-child(odd) {
+    background: #FFF;
+}
+
+div.options > div.row {
+    margin-left: 0px;
+    margin-right: 2em;
+}
+div.options > div.row > div {
+    padding-left: 1.5em;
+}
+.region > * {
+    text-align:center;
+    width: 100%;
+    text-transform: uppercase;
+}
+.contents {
+    padding: 2em;
+}
+.contents > div {
+    font-size: 140%;
+}
