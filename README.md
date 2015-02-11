@@ -1,6 +1,6 @@
 # aws_inventory
 This tool was written to collect data from AWS and store it in single place.
-With thiis files you can track changes in your infrastructure on AWS.
+With this files you can track changes in your infrastructure on AWS.
 
 To run this tool you should execute next command "python aws_inventory.py".
 
