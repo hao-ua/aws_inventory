@@ -1,5 +1,8 @@
 # aws_inventory
-Tool to get data from AWS and output it in different formats
+This tool was written to collect data from AWS and store it in single place.
+With thiis files you can track changes in your infrastructure on AWS.
+
+To run this tool you should execute next command "python aws_inventory.py".
 
 ## Configuration
 All configuration stored in aws_inventory.ini. Configuration file should contain at least one AWS account.
@@ -12,7 +15,7 @@ All configuration stored in aws_inventory.ini. Configuration file should contain
 
  - log_file - path to log file
 
-- AWS account section (Name should start with AWS)
+- AWS account section (Name should start with AWS) might be one or more sections
 
  - aws_key - key ID to AWS account
 
@@ -22,8 +25,11 @@ All configuration stored in aws_inventory.ini. Configuration file should contain
 
 ## Requirements
 
-To get data from AWS should be installed boto module (version 2.10.0+)
-To output into XLSX format should be installed openpyxl module (version 2+)
+- Python 2.7 (wasn't tested on earlier versions)
+
+- boto library 2.10.0+
+
+- openpyxl 2+
 
 ## Modules
 
@@ -54,9 +60,9 @@ To output into XLSX format should be installed openpyxl module (version 2+)
 
  Collects data about S3. Such as: Name, Website endpoint, Route53 name.
 
-- SG - Secyrity group module (data_SG.py)
+- SG - Security group module (data_SG.py)
 
- Collects data about secyrity groups. Such as: Protocol, Port, Source.
+ Collects data about security groups. Such as: Protocol, Port, Source.
 
 - Users - AWS IAM users module (data_Users.py)
 
