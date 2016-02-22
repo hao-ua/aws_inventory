@@ -1,7 +1,8 @@
 import boto.elasticache
 
-class data:
-    def __init__(self, credentials, Items):
+
+class Data(object):
+    def __init__(self, credentials, items):
         self.Name = 'EC'
         self.Priority = 6
         self.show = True
@@ -9,41 +10,43 @@ class data:
         self.HeaderWidths = ['2', '6', '1', '2', '3', '2']
         self.HeaderKeys = ['name', 'endpoint', 'status', 'type', 'maintenance', 'engine']
         self.credentials = credentials
-        self.Items = Items
+        self.Items = items
         self.skipRegions = []
 
-    def resultDict(self, item):
-        res = {}
+    def result_dict(self, item):
+        res = dict()
         res['name'] = item['CacheClusterId']
         res['engine'] = item['Engine']
-        if item['ConfigurationEndpoint'] == None:
+        if item['ConfigurationEndpoint'] is None:
             res['endpoint'] = ""
         else:
-            res['endpoint'] = ''.join([item['ConfigurationEndpoint']['Address'], ':', str(item['ConfigurationEndpoint']['Port'])])
+            res['endpoint'] = ''.join([item['ConfigurationEndpoint']['Address'], ':',
+                                       str(item['ConfigurationEndpoint']['Port'])])
         res['status'] = item['CacheClusterStatus']
         res['type'] = item['CacheNodeType']
         res['placement'] = item['PreferredAvailabilityZone']
         res['maintenance'] = item['PreferredMaintenanceWindow']
         return res
 
-    def getAllItems(self, aws_key, aws_secret, Items):
+    def get_all_items(self, aws_key, aws_secret, items):
         result = {}
         regions = boto.elasticache.regions()
         for region in regions:
             if region.name in self.skipRegions:
                 continue 
             conn = region.connect(aws_access_key_id=aws_key, aws_secret_access_key=aws_secret)
-            cacheClusters = conn.describe_cache_clusters()['DescribeCacheClustersResponse']['DescribeCacheClustersResult']['CacheClusters']
-            for cluster in cacheClusters:
-                clusterDict = self.resultDict(cluster)
-                if clusterDict['placement'] in result:
-                    result[clusterDict['placement']].append(clusterDict)
+            cache_clusters = conn.describe_cache_clusters()['DescribeCacheClustersResponse']\
+                ['DescribeCacheClustersResult']['CacheClusters']
+            for cluster in cache_clusters:
+                cluster_dict = self.result_dict(cluster)
+                if cluster_dict['placement'] in result:
+                    result[cluster_dict['placement']].append(cluster_dict)
                 else:
-                    result[clusterDict['placement']] = [clusterDict]
+                    result[cluster_dict['placement']] = [cluster_dict]
         return result
 
-    def getData(self):
-        ECs = {}
+    def get_data(self):
+        ecs = {}
         for credential in self.credentials:
-            ECs[credential[2]] = self.getAllItems(credential[0], credential[1], self.Items)
-        return ECs
+            ecs[credential[2]] = self.get_all_items(credential[0], credential[1], self.Items)
+        return ecs

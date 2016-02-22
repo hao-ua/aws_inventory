@@ -1,7 +1,7 @@
 import sys
 import os
 
-class render:
+class Render(object):
     def __init__(self, output_folder, categories, pages):
         self.categories = categories
         self.items = {}
@@ -13,15 +13,16 @@ class render:
         self.pages = pages
         for page in self.pages:
             self.printAddFunctions[page] = None
+
         self.output_folder = output_folder
 
-    def configPage(self, page, headerRows, headerRowWidths, headerKeys, data):
-        self.HeaderRows[page] = headerRows
-        self.HeaderRowWidths[page] = headerRowWidths
-        self.HeaderKeys[page] = headerKeys
+    def config_page(self, page, header_rows, header_row_widths, header_keys, data):
+        self.HeaderRows[page] = header_rows
+        self.HeaderRowWidths[page] = header_row_widths
+        self.HeaderKeys[page] = header_keys
         self.items[page] = data
 
-    def printHeader(self):
+    def print_header(self):
         print '<html><head><title>AWS Inventory</title>'
         print '<link href="css/bootstrap.min.css" rel="stylesheet" media="screen">'
         print '<link href="css/popup.css" rel="stylesheet" media="screen">'
@@ -30,57 +31,63 @@ class render:
         print '<script src="js/bootstrap.min.js"></script>'
         print '<br/> Links to <a href="index.csv">CSV</a>, <a href="inventory.xlsx">Excel</a><br/>'
 
-    def printRow(self, rows, add_class, data, addFunction=None):
+    def print_row(self, rows, add_class, data, add_function=None):
         print ''.join(['<tr class="', add_class, '">'])
         for val in rows:
             if add_class == 'header region':
                 colspan = val[0]
             else:
                 colspan = 1
+
             print ''.join(['<td colspan="', str(colspan), '">', str(data[val[1]]), '</td>'])
-        if addFunction:
-            addFunction(data)
+        if add_function:
+            add_function(data)
+
         print '</tr>'
 
-    def printCategoryItems(self, category, page):
-        data = {}
-        for key, val in map(lambda i,j:(i,j), self.HeaderKeys[page], self.HeaderRows[page]):
+    def print_category_items(self, category, page):
+        data = dict()
+        for key, val in map(lambda i, j: (i, j), self.HeaderKeys[page], self.HeaderRows[page]):
             data[key] = val
-        self.printRow(map(lambda i,j: (i, j), self.HeaderRowWidths[page], self.HeaderKeys[page]), 'header', data)
-        keyList = sorted(self.items[page][category].keys())
-        for region_name in keyList:
-            if len(self.items[page][category][region_name]) != 0:
-                self.printRow([(str(len(self.HeaderKeys[page])),'region')], 'header region', {'region':region_name})
-                itemList = sorted(self.items[page][category][region_name], key=lambda item: item['name'].upper())
-                for item in itemList:
-                    self.printRow(map(lambda i,j: (i,j), self.HeaderRowWidths[page], self.HeaderKeys[page]), 'trigger', item, self.printAddFunctions[page])
 
-    def printFooter(self):
+        self.print_row(map(lambda i, j: (i, j), self.HeaderRowWidths[page], self.HeaderKeys[page]), 'header', data)
+        key_list = sorted(self.items[page][category].keys())
+        for region_name in key_list:
+            if len(self.items[page][category][region_name]) != 0:
+                self.print_row([(str(len(self.HeaderKeys[page])), 'region')], 'header region', {'region': region_name})
+                item_list = sorted(self.items[page][category][region_name], key=lambda item: item['name'].upper())
+                for item in item_list:
+                    self.print_row(map(lambda i, j: (i, j), self.HeaderRowWidths[page], self.HeaderKeys[page]),
+                                   'trigger', item, self.printAddFunctions[page])
+
+    def print_footer(self):
         print '</body></html>'
 
-    def generatePage(self, page):
+    def generate_page(self, page):
         for category in self.categories:
             print '<div class="tab', category, '">'
             print ''.join(['<div><h3 id="', category, '_', page, '">', category, '/', page, '</h3></div>'])
             print '<table>'
-            self.printCategoryItems(category, page)
+            self.print_category_items(category, page)
             print '</table>'
             print '</div>'
 
-    def printContents(self, pages):
+    def print_contents(self, pages):
         print '<div class="contents"><div>Table of contents</div><ol>'
         for page in pages:
             for category in self.categories:
                 print ''.join(['<li><a href="#', category, '_', page, '">', category, '/', page, '</a></li>'])
+
         print '</ol></div>'
 
     def render(self):
-        self.backup = sys.stdout
+        backup = sys.stdout
         sys.stdout = open(''.join([self.output_folder, os.sep, 'index', '.html']), 'w')
-        self.printHeader()
-        self.printContents(self.pages)
+        self.print_header()
+        self.print_contents(self.pages)
         for page in self.pages:
-            self.generatePage(page)
-        self.printFooter()
+            self.generate_page(page)
+
+        self.print_footer()
         sys.stdout.close()
-        sys.stdout = self.backup
+        sys.stdout = backup

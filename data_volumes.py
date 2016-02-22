@@ -2,8 +2,9 @@ import boto.ec2
 import boto.ec2.volume
 import boto.ec2.snapshot
 
-class data:
-    def __init__(self, credentials, Items):
+
+class Data(object):
+    def __init__(self, credentials, items):
         self.Name = 'Volumes'
         self.Priority = 9
         self.show = True
@@ -11,11 +12,11 @@ class data:
         self.HeaderWidths = ['2', '2', '1', '1', '3', '2', '4']
         self.HeaderKeys = ['name', 'attachment_state', 'iops', 'size', 'create_time', 'instance_id', 'instance_name']
         self.credentials = credentials
-        self.Items = Items
+        self.Items = items
         self.account = ''
         self.skipRegions = []
 
-    def resultDict(self, volume):
+    def result_dict(self, volume):
         res = dict()
         res['name'] = volume.id
         res['attachment_state'] = volume.attachment_state()
@@ -32,27 +33,31 @@ class data:
         else:
             res['instance_id'] = 'none'
             res['instance_name'] = 'none'
+
         return res
 
-    def getAllItems(self, aws_key, aws_secret, Items):
+    def get_all_items(self, aws_key, aws_secret, items):
         result = dict()
         regions = boto.ec2.regions(aws_access_key_id=aws_key, aws_secret_access_key=aws_secret)
         for region in regions:
             if region.name in self.skipRegions:
                 continue
+
             conn = region.connect(aws_access_key_id=aws_key, aws_secret_access_key=aws_secret)
             volumes = conn.get_all_volumes()
             for volume in volumes:
-                instanceDict = self.resultDict(volume)
+                instance_dict = self.result_dict(volume)
                 if region.name in result:
-                    result[region.name].append(instanceDict)
+                    result[region.name].append(instance_dict)
                 else:
-                    result[region.name] = [instanceDict]
+                    result[region.name] = [instance_dict]
+
         return result
 
-    def getData(self):
-        Volumes = {}
+    def get_data(self):
+        volumes = {}
         for credential in self.credentials:
             self.account = credential[2]
-            Volumes[credential[2]] = self.getAllItems(credential[0], credential[1], self.Items)
-        return Volumes
+            volumes[credential[2]] = self.get_all_items(credential[0], credential[1], self.Items)
+
+        return volumes

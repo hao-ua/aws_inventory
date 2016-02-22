@@ -1,24 +1,28 @@
 import boto.ec2
 
-class data:
-    def __init__(self, credentials, Items):
+
+class Data(object):
+    def __init__(self, credentials, items):
         self.Name = 'EC2'
         self.Priority = 3
         self.show = True
-        self.HeaderNames = ['ID', 'Name', 'ELB name', 'IP address', 'State', 'Route53 name', 'Private IP', 'Public DNS', 'Instance type', 'Security groups']
+        self.HeaderNames = ['ID', 'Name', 'ELB name', 'IP address', 'State', 'Route53 name', 'Private IP',
+                            'Public DNS', 'Instance type', 'Security groups']
         self.HeaderWidths = ['2', '5', '2', '2', '1', '4', '2', '6', '2', '4']
-        self.HeaderKeys = ['id', 'name', 'elb', 'ip_address', 'state', 'route53_name', 'private_ip_address', 'public_dns', 'type', 'sg']
+        self.HeaderKeys = ['id', 'name', 'elb', 'ip_address', 'state', 'route53_name', 'private_ip_address',
+                           'public_dns', 'type', 'sg']
         self.credentials = credentials
-        self.Items = Items
+        self.Items = items
         self.account = ''
         self.skipRegions = []
 
-    def resultDict(self, instance, zones, elb_name=''):
+    def result_dict(self, instance, zones, elb_name=''):
         res = dict()
         if 'Name' in instance.tags:
             res['name'] = instance.tags['Name']
         else:
             res['name'] = 'Empty'
+
         res['ip_address'] = instance.ip_address
         res['id'] = instance.id
         res['public_dns'] = instance.public_dns_name
@@ -41,34 +45,39 @@ class data:
             elif res['public_dns']+'.' in records:
                 res['route53_name'] = records[res['public_dns']+'.']
                 break
+
         return res
 
-    def getAllItems(self, aws_key, aws_secret, Items):
+    def get_all_items(self, aws_key, aws_secret, items):
         result = dict()
         regions = boto.ec2.regions(aws_access_key_id=aws_key, aws_secret_access_key=aws_secret)
         for region in regions:
             if region.name in self.skipRegions:
-                continue            
+                continue
+
             conn = region.connect(aws_access_key_id=aws_key, aws_secret_access_key=aws_secret)
             reservations = conn.get_all_instances()
             for reservation in reservations:
                 for instance in reservation.instances:
                     elb_name = ''
-                    if region.name in Items['ELB'][self.account]:
-                        for elb in Items['ELB'][self.account][region.name]:
+                    if region.name in items['ELB'][self.account]:
+                        for elb in items['ELB'][self.account][region.name]:
                             if instance.id in elb['instances']:
                                 elb_name = elb['dns_name']
                                 break
-                    instanceDict = self.resultDict(instance, Items['Route53'], elb_name)
-                    if instanceDict['placement'] in result:
-                        result[instanceDict['placement']].append(instanceDict)
+
+                    instance_dict = self.result_dict(instance, items['Route53'], elb_name)
+                    if instance_dict['placement'] in result:
+                        result[instance_dict['placement']].append(instance_dict)
                     else:
-                        result[instanceDict['placement']] = [instanceDict]
+                        result[instance_dict['placement']] = [instance_dict]
+
         return result
 
-    def getData(self):
-        EC2s = dict()
+    def get_data(self):
+        ec2s = dict()
         for credential in self.credentials:
             self.account = credential[2]
-            EC2s[credential[2]] = self.getAllItems(credential[0], credential[1], self.Items)
-        return EC2s
+            ec2s[credential[2]] = self.get_all_items(credential[0], credential[1], self.Items)
+
+        return ec2s

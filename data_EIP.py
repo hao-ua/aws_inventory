@@ -1,7 +1,8 @@
 import boto.ec2
 
-class data:
-    def __init__(self, credentials, Items):
+
+class Data(object):
+    def __init__(self, credentials, items):
         self.Name = 'EIP'
         self.Priority = 4
         self.show = True
@@ -9,12 +10,12 @@ class data:
         self.HeaderWidths = ['2', '2', '5', '4']
         self.HeaderKeys = ['ip_address', 'instance_id', 'name', 'route53_name']
         self.credentials = credentials
-        self.Items = Items
+        self.Items = items
         self.account = ''
         self.skipRegions = []
 
-    def resultDict(self, address, instances, zones):
-        res = {}
+    def result_dict(self, address, instances, zones):
+        res = dict()
         res['ip_address'] = address.public_ip
         res['instance_id'] = address.instance_id
         res['name'] = 'Empty'
@@ -24,29 +25,34 @@ class data:
                 if instance['id'] == address.instance_id:
                     res['name'] = instance['name']
                     break
+
         for zone_name, records in zones.items():
             if res['ip_address'] in records:
                 res['route53_name'] = records[res['ip_address']]
                 break
+
         return res
 
-    def getAllItems(self, aws_key, aws_secret, Items):
-        addr = {}
+    def get_all_items(self, aws_key, aws_secret, items):
+        addr = dict()
         regions = boto.ec2.regions(aws_access_key_id=aws_key, aws_secret_access_key=aws_secret)
         for region in regions:
             if region.name in self.skipRegions:
-                continue            
+                continue
+
             conn = region.connect(aws_access_key_id=aws_key, aws_secret_access_key=aws_secret)
             addresses = conn.get_all_addresses()
             addr[region.name] = []
             for address in addresses:
-                addrDict = self.resultDict(address, Items['EC2'][self.account], Items['Route53'])
-                addr[region.name].append(addrDict)
+                addr_dict = self.result_dict(address, items['EC2'][self.account], items['Route53'])
+                addr[region.name].append(addr_dict)
+
         return addr
 
-    def getData(self):
-        EIPs = {}
+    def get_data(self):
+        eips = {}
         for credential in self.credentials:
             self.account = credential[2]
-            EIPs[credential[2]] = self.getAllItems(credential[0], credential[1], self.Items)
-        return EIPs
+            eips[credential[2]] = self.get_all_items(credential[0], credential[1], self.Items)
+
+        return eips
