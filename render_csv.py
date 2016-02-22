@@ -22,7 +22,8 @@ class Render(object):
         self.HeaderKeys[page] = header_keys
         self.items[page] = data
 
-    def print_row(self, rows, add_class, data):
+    @staticmethod
+    def print_row(rows, data):
         items = [str(data[key]) for key in rows]
         print ','.join(items)
 
@@ -31,15 +32,15 @@ class Render(object):
         for key, val in map(lambda i, j: (i, j), self.HeaderKeys[page], self.HeaderRows[page]):
             data[key] = val
 
-        self.print_row(self.HeaderKeys[page], 'header', data)
+        self.print_row(self.HeaderKeys[page], data)
         key_list = sorted(self.items[page][category].keys())
         for region_name in key_list:
             print region_name
             if len(self.items[page][category][region_name]) != 0:
-                self.print_row(['region'], 'header region', {'region': region_name})
+                self.print_row(['region'], {'region': region_name})
                 item_list = sorted(self.items[page][category][region_name], key=lambda x: x['name'].upper())
                 for item in item_list:
-                    self.print_row(self.HeaderKeys[page], 'trigger', item)
+                    self.print_row(self.HeaderKeys[page], item)
 
     def generate_page(self, page):
         for category in self.categories:

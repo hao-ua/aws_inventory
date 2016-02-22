@@ -16,7 +16,8 @@ class Data(object):
         self.account = ''
         self.skipRegions = []
 
-    def result_dict(self, snapshot, volumes, images):
+    @staticmethod
+    def result_dict(snapshot, volumes, images):
         res = dict()
         res['name'] = snapshot.id
         res['owner_id'] = snapshot.owner_id
@@ -41,7 +42,7 @@ class Data(object):
 
         return res
 
-    def get_all_items(self, aws_key, aws_secret, items):
+    def get_all_items(self, aws_key, aws_secret):
         result = dict()
         regions = boto.ec2.regions(aws_access_key_id=aws_key, aws_secret_access_key=aws_secret)
         for region in regions:
@@ -68,6 +69,6 @@ class Data(object):
         volumes = dict()
         for credential in self.credentials:
             self.account = credential[2]
-            volumes[credential[2]] = self.get_all_items(credential[0], credential[1], self.Items)
+            volumes[credential[2]] = self.get_all_items(credential[0], credential[1])
 
         return volumes

@@ -16,7 +16,8 @@ class Data(object):
         self.account = ''
         self.skipRegions = []
 
-    def result_dict(self, instance, zones, elb_name=''):
+    @staticmethod
+    def result_dict(instance, zones, elb_name=''):
         res = dict()
         if 'Name' in instance.tags:
             res['name'] = instance.tags['Name']
@@ -48,7 +49,7 @@ class Data(object):
 
         return res
 
-    def get_all_items(self, aws_key, aws_secret, items):
+    def get_all_items(self, aws_key, aws_secret):
         result = dict()
         regions = boto.ec2.regions(aws_access_key_id=aws_key, aws_secret_access_key=aws_secret)
         for region in regions:
@@ -60,13 +61,13 @@ class Data(object):
             for reservation in reservations:
                 for instance in reservation.instances:
                     elb_name = ''
-                    if region.name in items['ELB'][self.account]:
-                        for elb in items['ELB'][self.account][region.name]:
+                    if region.name in self.Items['ELB'][self.account]:
+                        for elb in self.Items['ELB'][self.account][region.name]:
                             if instance.id in elb['instances']:
                                 elb_name = elb['dns_name']
                                 break
 
-                    instance_dict = self.result_dict(instance, items['Route53'], elb_name)
+                    instance_dict = self.result_dict(instance, self.Items['Route53'], elb_name)
                     if instance_dict['placement'] in result:
                         result[instance_dict['placement']].append(instance_dict)
                     else:
@@ -78,6 +79,6 @@ class Data(object):
         ec2s = dict()
         for credential in self.credentials:
             self.account = credential[2]
-            ec2s[credential[2]] = self.get_all_items(credential[0], credential[1], self.Items)
+            ec2s[credential[2]] = self.get_all_items(credential[0], credential[1])
 
         return ec2s

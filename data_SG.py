@@ -14,7 +14,8 @@ class Data(object):
         self.Items = items
         self.skipRegions = []
 
-    def result_dict(self, sg, name, rule):
+    @staticmethod
+    def result_dict(sg, name, rule):
         res = dict()
         res['protocol'] = str(sg.ip_protocol)
         if sg.from_port != sg.to_port:
@@ -26,7 +27,7 @@ class Data(object):
         res['name'] = name
         return res
 
-    def get_all_items(self, aws_key, aws_secret, items):
+    def get_all_items(self, aws_key, aws_secret):
         res = dict()
         regions = boto.ec2.regions()
         for region in regions:
@@ -48,6 +49,6 @@ class Data(object):
     def get_data(self):
         sgs = dict()
         for credential in self.credentials:
-            sgs[credential[2]] = self.get_all_items(credential[0], credential[1], self.Items)
+            sgs[credential[2]] = self.get_all_items(credential[0], credential[1])
 
         return sgs

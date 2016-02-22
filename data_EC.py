@@ -13,7 +13,8 @@ class Data(object):
         self.Items = items
         self.skipRegions = []
 
-    def result_dict(self, item):
+    @staticmethod
+    def result_dict(item):
         res = dict()
         res['name'] = item['CacheClusterId']
         res['engine'] = item['Engine']
@@ -28,14 +29,15 @@ class Data(object):
         res['maintenance'] = item['PreferredMaintenanceWindow']
         return res
 
-    def get_all_items(self, aws_key, aws_secret, items):
+    def get_all_items(self, aws_key, aws_secret):
         result = {}
         regions = boto.elasticache.regions()
         for region in regions:
             if region.name in self.skipRegions:
-                continue 
+                continue
+
             conn = region.connect(aws_access_key_id=aws_key, aws_secret_access_key=aws_secret)
-            cache_clusters = conn.describe_cache_clusters()['DescribeCacheClustersResponse']\
+            cache_clusters = conn.describe_cache_clusters()['DescribeCacheClustersResponse'] \
                 ['DescribeCacheClustersResult']['CacheClusters']
             for cluster in cache_clusters:
                 cluster_dict = self.result_dict(cluster)
@@ -43,10 +45,12 @@ class Data(object):
                     result[cluster_dict['placement']].append(cluster_dict)
                 else:
                     result[cluster_dict['placement']] = [cluster_dict]
+
         return result
 
     def get_data(self):
         ecs = {}
         for credential in self.credentials:
-            ecs[credential[2]] = self.get_all_items(credential[0], credential[1], self.Items)
+            ecs[credential[2]] = self.get_all_items(credential[0], credential[1])
+
         return ecs

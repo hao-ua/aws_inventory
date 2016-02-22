@@ -15,7 +15,8 @@ class Data(object):
         self.Items = items
         self.skipRegions = []
 
-    def result_dict(self, db_instance):
+    @staticmethod
+    def result_dict(db_instance):
         res = dict()
         res['name'] = db_instance.id
         res['endpoint'] = ':'.join([db_instance.endpoint[0], str(db_instance.endpoint[1])])
@@ -24,7 +25,7 @@ class Data(object):
         res['status'] = db_instance.status
         return res
 
-    def get_all_items(self, aws_key, aws_secret, items):
+    def get_all_items(self, aws_key, aws_secret):
         result = dict()
         regions = boto.ec2.regions(aws_access_key_id=aws_key, aws_secret_access_key=aws_secret)
         for region in regions:
@@ -42,5 +43,5 @@ class Data(object):
     def get_data(self):
         rdses = dict()
         for credential in self.credentials:
-            rdses[credential[2]] = self.get_all_items(credential[0], credential[1], self.Items)
+            rdses[credential[2]] = self.get_all_items(credential[0], credential[1])
         return rdses

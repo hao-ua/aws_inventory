@@ -3,15 +3,16 @@ import boto.route53
 
 
 class Data(object):
-    def __init__(self, credentials, Items):
+    def __init__(self, credentials, items):
         self.Priority = 0
         self.Name = 'Route53'
-        self.Items = Items
+        self.Items = items
         self.show = False
         self.credentials = credentials
         self.skipRegions = []
 
-    def get_all_items(self, aws_key, aws_secret, items):
+    @staticmethod
+    def get_all_items(aws_key, aws_secret):
         result = dict()
         zone_params = dict()
         conn = boto.route53.connection.Route53Connection(aws_access_key_id=aws_key, aws_secret_access_key=aws_secret)
@@ -42,7 +43,7 @@ class Data(object):
     def get_data(self):
         zones = dict()
         for credential in self.credentials:
-            zone = self.get_all_items(credential[0], credential[1], self.Items)
+            zone = self.get_all_items(credential[0], credential[1])
             zones.update(zone)
 
         return zones

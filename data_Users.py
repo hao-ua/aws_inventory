@@ -13,7 +13,8 @@ class Data(object):
         self.HeaderKeys = ['name', 'groups']
         self.skipRegions = []
 
-    def result_dict(self, item, groups):
+    @staticmethod
+    def result_dict(item, groups):
         res = dict()
         user_groups = groups['list_groups_for_user_response']['list_groups_for_user_result']['groups']
         res['name'] = item['user_name']
@@ -24,7 +25,7 @@ class Data(object):
         res['groups'] = ' '.join(groups_list)
         return res
 
-    def get_all_items(self, aws_key, aws_secret, items):
+    def get_all_items(self, aws_key, aws_secret):
         result = dict()
         result['Global'] = []
         regions = boto.iam.regions()
@@ -40,6 +41,6 @@ class Data(object):
     def get_data(self):
         ecs = {}
         for credential in self.credentials:
-            ecs[credential[2]] = self.get_all_items(credential[0], credential[1], self.Items)
+            ecs[credential[2]] = self.get_all_items(credential[0], credential[1])
 
         return ecs

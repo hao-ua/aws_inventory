@@ -14,7 +14,8 @@ class Data(object):
         self.Items = items
         self.skipRegions = []
 
-    def result_dict(self, region, elb, zones):
+    @staticmethod
+    def result_dict(elb, zones):
         res = dict()
         res['instances'] = [instance.id for instance in elb.instances]
         res['instances_details'] = []
@@ -33,19 +34,20 @@ class Data(object):
 
         return res
 
-    def update_items(self, items):
+    @staticmethod
+    def update_items(items):
         for key, val in items['EC2'].items():
             for instancesList in val.values():
                 for instance in instancesList:
                     if instance['elb'] != '':
-                        for elbsList in items['ELB'][key].values():
-                            for elb in elbsList:
+                        for elbs_list in items['ELB'][key].values():
+                            for elb in elbs_list:
                                 if instance['id'] in elb['instances']:
                                     elb['instances_details'].append({'id': instance['id'],
                                                                      'ip_address': instance['ip_address'],
                                                                      'name': instance['name']})
 
-    def get_all_items(self, aws_key, aws_secret, items):
+    def get_all_items(self, aws_key, aws_secret):
         res = {}
         regions = boto.ec2.elb.regions()
         for region in regions:
@@ -56,7 +58,7 @@ class Data(object):
             all_elbs = conn.get_all_load_balancers()
             res[region.name] = []
             for item in all_elbs:
-                elb_dict = self.result_dict(region.name, item, items['Route53'])
+                elb_dict = self.result_dict(item, self.Items['Route53'])
                 res[region.name].append(elb_dict)
 
         return res
@@ -64,6 +66,6 @@ class Data(object):
     def get_data(self):
         elbs = {}
         for credential in self.credentials:
-            elbs[credential[2]] = self.get_all_items(credential[0], credential[1], self.Items)
+            elbs[credential[2]] = self.get_all_items(credential[0], credential[1])
 
         return elbs

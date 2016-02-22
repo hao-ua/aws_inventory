@@ -14,7 +14,8 @@ class Data(object):
         self.account = ''
         self.skipRegions = []
 
-    def result_dict(self, address, instances, zones):
+    @staticmethod
+    def result_dict(address, instances, zones):
         res = dict()
         res['ip_address'] = address.public_ip
         res['instance_id'] = address.instance_id
@@ -33,7 +34,7 @@ class Data(object):
 
         return res
 
-    def get_all_items(self, aws_key, aws_secret, items):
+    def get_all_items(self, aws_key, aws_secret):
         addr = dict()
         regions = boto.ec2.regions(aws_access_key_id=aws_key, aws_secret_access_key=aws_secret)
         for region in regions:
@@ -44,7 +45,7 @@ class Data(object):
             addresses = conn.get_all_addresses()
             addr[region.name] = []
             for address in addresses:
-                addr_dict = self.result_dict(address, items['EC2'][self.account], items['Route53'])
+                addr_dict = self.result_dict(address, self.Items['EC2'][self.account], self.Items['Route53'])
                 addr[region.name].append(addr_dict)
 
         return addr
@@ -53,6 +54,6 @@ class Data(object):
         eips = {}
         for credential in self.credentials:
             self.account = credential[2]
-            eips[credential[2]] = self.get_all_items(credential[0], credential[1], self.Items)
+            eips[credential[2]] = self.get_all_items(credential[0], credential[1])
 
         return eips

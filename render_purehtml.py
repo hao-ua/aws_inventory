@@ -1,6 +1,7 @@
 import sys
 import os
 
+
 class Render(object):
     def __init__(self, output_folder, categories, pages):
         self.categories = categories
@@ -22,7 +23,8 @@ class Render(object):
         self.HeaderKeys[page] = header_keys
         self.items[page] = data
 
-    def print_header(self):
+    @staticmethod
+    def print_header():
         print '<html><head><title>AWS Inventory</title>'
         print '<link href="css/bootstrap.min.css" rel="stylesheet" media="screen">'
         print '<link href="css/popup.css" rel="stylesheet" media="screen">'
@@ -31,7 +33,8 @@ class Render(object):
         print '<script src="js/bootstrap.min.js"></script>'
         print '<br/> Links to <a href="index.csv">CSV</a>, <a href="inventory.xlsx">Excel</a><br/>'
 
-    def print_row(self, rows, add_class, data, add_function=None):
+    @staticmethod
+    def print_row(rows, add_class, data, add_function=None):
         print ''.join(['<tr class="', add_class, '">'])
         for val in rows:
             if add_class == 'header region':
@@ -55,12 +58,13 @@ class Render(object):
         for region_name in key_list:
             if len(self.items[page][category][region_name]) != 0:
                 self.print_row([(str(len(self.HeaderKeys[page])), 'region')], 'header region', {'region': region_name})
-                item_list = sorted(self.items[page][category][region_name], key=lambda item: item['name'].upper())
+                item_list = sorted(self.items[page][category][region_name], key=lambda x: x['name'].upper())
                 for item in item_list:
                     self.print_row(map(lambda i, j: (i, j), self.HeaderRowWidths[page], self.HeaderKeys[page]),
                                    'trigger', item, self.printAddFunctions[page])
 
-    def print_footer(self):
+    @staticmethod
+    def print_footer():
         print '</body></html>'
 
     def generate_page(self, page):

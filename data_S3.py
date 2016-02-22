@@ -14,19 +14,20 @@ class Data(object):
         self.Items = items
         self.skipRegions = []
 
-    def result_dict(self, bucket, zones):
+    @staticmethod
+    def result_dict(bucket, zones):
         res = dict()
         res['name'] = bucket.name
         res['website_endpoint'] = bucket.get_website_endpoint()
         res['route53_name'] = ''
         try:
             res['website_conf'] = bucket.get_website_configuration()
-        except Exception as e:
+        except Exception:
             res['website_conf'] = None
 
         try:
             res['tags'] = bucket.get_tags()
-        except Exception as e:
+        except Exception:
             res['tags'] = []
 
         if res['website_conf']:
@@ -40,18 +41,18 @@ class Data(object):
 
         return res
 
-    def get_all_items(self, aws_key, aws_secret, items):
+    def get_all_items(self, aws_key, aws_secret):
         result = dict()
         result['Global'] = []
         conn = boto.connect_s3(aws_access_key_id=aws_key, aws_secret_access_key=aws_secret)
         buckets = conn.get_all_buckets()
         for bucket in buckets:
-            result['Global'].append(self.result_dict(bucket, items['Route53']))
+            result['Global'].append(self.result_dict(bucket, self.Items['Route53']))
 
         return result
 
     def get_data(self):
         s3 = {}
         for credential in self.credentials:
-            s3[credential[2]] = self.get_all_items(credential[0], credential[1], self.Items)
+            s3[credential[2]] = self.get_all_items(credential[0], credential[1])
         return s3
