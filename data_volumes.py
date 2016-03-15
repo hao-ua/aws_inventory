@@ -24,7 +24,8 @@ class Data(object):
         res['size'] = str(volume.size)+'Gb'
         res['placement'] = volume.zone
         res['create_time'] = volume.create_time
-        if volume.attach_data:
+        
+        if res['attachment_state'] == 'attached':
             res['instance_id'] = volume.attach_data.instance_id
             for region in self.Items['EC2'][self.account].keys():
                 for instanceDict in self.Items['EC2'][self.account][region]:
